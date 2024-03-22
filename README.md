@@ -1,6 +1,6 @@
 # TikTok-Video-Downloader
 
-#Overview This App allows you to easily download videos from TikTok by simply providing the video URL. It utilizes the instaloader Python package to handle the downloading process.
+#Overview This App allows you to easily download videos from TikTok by simply providing the video URL. It utilizes the tiktokapipy Python package to handle the downloading process.
 
 #Prerequisites Before running the App, ensure that you have the following installed on your machine: Python: The script requires Python to be installed. You can download and install Python from the official website.
 

@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 import aiohttp
 import asyncio
 from io import BytesIO
@@ -90,31 +91,46 @@ class TikTokDownloaderApp:
         thumbnail_label.pack(pady=10)
         # Display video title
         title_label = tk.Label(success_window, text="Video Title : "f'{title}')
-        title_label.pack()
+        title_label.pack(pady=10)
 
     def retry(self, success_window):
         success_window.destroy()  # Close the success window
         self.master.deiconify()   # Show the master window
 
 
-    async def save_video(self, video, api):
+    async def save_video(self, video, api,success_window):
         async with aiohttp.ClientSession(cookies={cookie["name"]: cookie["value"] for cookie in await api.context.cookies() if cookie["name"] == "tt_chain_token"}) as session:
             async with session.get(video.video.download_addr, headers={"referer": "https://www.tiktok.com/"}) as resp:
                 if resp.status == 200:
                     filename = f"{video.id}.mp4"
                     script_path = os.path.dirname(__file__)
                     filepath = os.path.join(script_path, filename)
+                    self.downloadstatus = tk.Label(success_window, fg="green", text="Downloading...")
+                    self.downloadstatus.pack(pady=10)
+
+                    # Create progress bar
+                    self.progress_bar = ttk.Progressbar(success_window, mode='determinate')
+                    self.progress_bar.pack()
+
+                    self.progress_bar.start()  # Start the progress bar
                     with open(filepath, "wb") as f:
                         f.write(await resp.read())
+                    self.master.deiconify()  # Show the main window again after download
+                    self.process_button.config(state='normal')
+                    # Hide the success window and destroy it
+                    success_window.destroy()
                     messagebox.showinfo("Success", f"Video downloaded and saved as {filepath}")
                 else:
                     messagebox.showerror("Error", f"Failed to download video: {resp.status} - {resp.reason}")
+                    self.master.deiconify()  # Show the main window again after download
+                    # Hide the success window and destroy it
+                    success_window.destroy()
 
     async def download_video_async(self, link, success_window):
         async with AsyncTikTokAPI() as api:
             try:
                 video = await api.video(link)
-                await self.save_video(video, api)
+                await self.save_video(video, api,success_window)
                 success_window.destroy()
                 self.master.deiconify()
             except Exception as e:
@@ -124,6 +140,8 @@ class TikTokDownloaderApp:
             finally:
                 self.downloading = False
                 self.process_button.config(state='normal')
+                success_window.destroy()
+                self.master.deiconify()
 
 
     def download_video(self, link, success_window):
