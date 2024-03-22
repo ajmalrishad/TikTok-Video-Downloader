@@ -6,7 +6,7 @@
 
 #Installation To install the required Python package, run the following command in your terminal or command prompt:
 
-Install the tiktokapipy package (or add it to your project requirements) and set up Playwright:
+pip3 install aiohttp
 pip3 install tiktokapipy
 python3 -m playwright install
 
